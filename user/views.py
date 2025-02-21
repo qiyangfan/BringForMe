@@ -59,7 +59,7 @@ class RegisterModelForm(forms.ModelForm):
     def clean_confirm_password(self):
         password = self.cleaned_data.get('password')
         confirm_password = self.cleaned_data.get('confirm_password')
-        if check_password(confirm_password, password):
+        if not check_password(confirm_password, password):
             raise ValidationError('The two passwords are inconsistent.')
         return confirm_password
 
