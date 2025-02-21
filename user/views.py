@@ -56,6 +56,13 @@ class RegisterModelForm(forms.ModelForm):
                 'Your password must be 8 to 20 characters long and include at least three of the following: uppercase letters, lowercase letters, numbers, and special symbols (!@#$%^&*).')
         return make_password(password)
 
+    def clean_confirm_password(self):
+        password = self.cleaned_data.get('password')
+        confirm_password = self.cleaned_data.get('confirm_password')
+        if check_password(confirm_password, password):
+            raise ValidationError('The two passwords are inconsistent.')
+        return confirm_password
+
 
 class RegisterView(APIView):
     authentication_classes = []
@@ -75,4 +82,3 @@ class ProfileView(APIView):
         if user['id'] != id:
             return Response({'status': 'error', 'message': 'You are not authorized to access this page.'}, status=403)
         return Response({'status': 'ok'})
-
