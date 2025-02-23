@@ -6,10 +6,11 @@ from django import forms
 from django.conf import settings
 from django.contrib.auth.hashers import make_password, check_password
 from django.core.exceptions import ValidationError
+from rest_framework import serializers
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import User
+from .models import User, Address
 
 
 class LoginModelForm(forms.ModelForm):
@@ -21,7 +22,7 @@ class LoginModelForm(forms.ModelForm):
 class LoginView(APIView):
     authentication_classes = []
 
-    def post(self, request):
+    def post(self, request, *args, **kwargs):
         email = request.data.get('email')
         password = request.data.get('password')
         target_user = User.objects.filter(email=email).first()
@@ -67,7 +68,7 @@ class RegisterModelForm(forms.ModelForm):
 class RegisterView(APIView):
     authentication_classes = []
 
-    def post(self, request):
+    def post(self, request, *args, **kwargs):
         form = RegisterModelForm(request.data)
         if form.is_valid():
             form.save()
@@ -76,9 +77,47 @@ class RegisterView(APIView):
         return Response({'status': 'ok'})
 
 
+# TODO
 class ProfileView(APIView):
-    def get(self, request, id):
+    def get(self, request, *args, **kwargs):
         user = request.user
-        if user['id'] != id:
-            return Response({'status': 'error', 'message': 'You are not authorized to access this page.'}, status=403)
+        user_id = user['id']
+        return Response({'status': 'ok'})
+
+
+class AddressModelForm(forms.ModelForm):
+    class Meta:
+        model = Address
+        fields = ['user', 'tag', 'country', 'province', 'city', 'address', 'remark', 'postcode', 'phone', 'is_default']
+
+    def clean_user_id(self):
+        user_id = self.cleaned_data.get('user_id')
+        user = User.objects.filter(id=user_id).first()
+        if user is None:
+            raise ValidationError('The user does not exist.')
+        return user_id
+
+
+class AddressSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Address
+        fields = '__all__'
+
+
+class AddressView(APIView):
+    def get(self, request, *args, **kwargs):
+        user = request.user
+        user_id = user['id']
+        queryset = Address.objects.filter(user_id=user_id).all()
+        user_addresses = AddressSerializer(queryset, many=True)
+        return Response({'status': 'ok', 'data': user_addresses})
+
+    def post(self, request, *args, **kwargs):
+        print(request.user)
+
+        form = AddressModelForm({**request.data, 'user': 1})
+        if form.is_valid():
+            form.save()
+        else:
+            return Response({'status': 'error', 'message': form.errors}, status=422)
         return Response({'status': 'ok'})
