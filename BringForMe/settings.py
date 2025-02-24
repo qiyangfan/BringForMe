@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'rest_framework_simplejwt',
     'user',
 ]
 
@@ -126,8 +127,8 @@ AUTH_USER_MODEL = 'user.User'
 
 REST_FRAMEWORK = {
     'UNAUTHENTICATED_USER': None,
-    # "DEFAULT_AUTHENTICATION_CLASSES": ['extensions.authentication.JWTAuthentication'],
-    "DEFAULT_AUTHENTICATION_CLASSES": ['rest_framework_simplejwt.authentication.JWTAuthentication'],
+    "DEFAULT_AUTHENTICATION_CLASSES": ['rest_framework_simplejwt.authentication.JWTAuthentication',
+                                       'extensions.authentication.FailedAuthentication'],
     # DRF自带限流类
     'DEFAULT_THROTTLE_CLASSES': [
         'rest_framework.throttling.AnonRateThrottle',
