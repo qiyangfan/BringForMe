@@ -2,8 +2,8 @@ from django.contrib.auth.hashers import make_password
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from rest_framework import serializers
+from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
-from rest_framework.views import APIView
 
 from extensions.permission import OwnerPermission
 from .models import User, Address
@@ -19,6 +19,10 @@ class RegisterModelSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['username', 'password', 'confirm_password', 'first_name', 'last_name', 'nickname', 'phone', 'email']
+        extra_kwargs = {
+            'password': {'write_only': True},
+            'confirm_password': {'write_only': True},
+        }
 
     def validate_password(self, value):
         self.password_validator(value)
@@ -26,21 +30,22 @@ class RegisterModelSerializer(serializers.ModelSerializer):
 
     def validate_confirm_password(self, value):
         password = self.initial_data.get('password')
-        if not password == value:
+        if password != value:
             raise ValidationError('The two passwords are inconsistent.')
         return value
 
 
-class RegisterView(APIView):
+class RegisterView(GenericAPIView):
     authentication_classes = []
+    serializer_class = RegisterModelSerializer
 
     def post(self, request, *args, **kwargs):
-        ser = RegisterModelSerializer(data=request.data)
-        if ser.is_valid():
-            ser.validated_data.pop('confirm_password')
-            ser.save()
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            serializer.validated_data.pop('confirm_password')
+            serializer.save()
         else:
-            return Response({'status': 'error', 'message': ser.errors}, status=422)
+            return Response({'status': 'error', 'message': serializer.errors}, status=422)
         return Response({'status': 'ok'})
 
 
@@ -54,24 +59,24 @@ class AddressModelSerializer(serializers.ModelSerializer):
         }
 
 
-class AddressView(APIView):
+class AddressView(GenericAPIView):
     permission_classes = [OwnerPermission]
+    serializer_class = AddressModelSerializer
 
     def get(self, request, *args, **kwargs):
-        user_id = kwargs.get('user_id')
-        queryset = Address.objects.filter(user_id=user_id).all()
-        ser = AddressModelSerializer(queryset, many=True)
-        user_addresses = ser.data
+        user_id = request.user.id
+        queryset = Address.objects.filter(user_id=user_id)
+        serializer = self.get_serializer(instance=queryset, many=True)
+        user_addresses = serializer.data
         return Response({'status': 'ok', 'data': user_addresses})
 
     def post(self, request, *args, **kwargs):
-        user_id = kwargs.get('user_id')
-        print(user_id)
-        ser = AddressModelSerializer(data=request.data)
-        if ser.is_valid():
-            ser.save(user_id=user_id)
+        user_id = request.user.id
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(user_id=user_id)
         else:
-            return Response({'status': 'error', 'message': ser.errors}, status=422)
+            return Response({'status': 'error', 'message': serializer.errors}, status=422)
         return Response({'status': 'ok'})
 
 
@@ -86,10 +91,11 @@ class ProfileModelSerializer(serializers.ModelSerializer):
         }
 
 
-class ProfileView(APIView):
+class ProfileView(GenericAPIView):
     permission_classes = [OwnerPermission]
+    serializer_class = ProfileModelSerializer
 
     def get(self, request, *args, **kwargs):
         user_id = kwargs.get('user_id')
-        ser = ProfileModelSerializer(User.objects.get(id=user_id))
-        return Response({'status': 'ok', 'data': ser.data})
+        serializer = self.get_serializer(User.objects.get(id=user_id))
+        return Response({'status': 'ok', 'data': serializer.data})
