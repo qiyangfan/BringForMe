@@ -5,10 +5,10 @@ from django.db import models
 # Create your models here.
 class User(AbstractUser):
     id = models.AutoField(primary_key=True)
-    phone = models.CharField(max_length=15)
+    phone = models.CharField(max_length=15, null=True, blank=True)
     password = models.CharField(max_length=255)
-    nickname = models.CharField(max_length=15)
-    balance = models.FloatField(default=0)
+    nickname = models.CharField(max_length=20)
+    balance = models.FloatField(default=0, blank=True)
 
 
 class Address(models.Model):
