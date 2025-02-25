@@ -22,6 +22,8 @@ class RegisterModelSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             'password': {'write_only': True},
             'confirm_password': {'write_only': True},
+            "first_name": {"required": False},
+            "last_name": {"required": False},
         }
 
     def validate_password(self, value):
