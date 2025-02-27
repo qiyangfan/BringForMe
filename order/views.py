@@ -11,6 +11,7 @@ from .models import Order
 
 class AddressModelSerializer(serializers.ModelSerializer):
     class Meta:
+        ref_name = 'OrderAddressModelSerializer'
         model = Address
         fields = ['tag', 'country', 'province', 'city', 'address',
                   'remark', 'postcode', 'contact_person', 'country_code', 'phone']
@@ -18,7 +19,7 @@ class AddressModelSerializer(serializers.ModelSerializer):
 
 class OrderModelSerializer(serializers.ModelSerializer):
     destination = AddressModelSerializer()
-    image_urls = serializers.SerializerMethodField(read_only=True)
+    image_urls = serializers.SerializerMethodField()
 
     class Meta:
         model = Order
@@ -31,7 +32,8 @@ class OrderModelSerializer(serializers.ModelSerializer):
             'created_at': {'read_only': True},
             'updated_at': {'read_only': True},
             'status': {'source': 'get_status_display'},
-            'images': {'write_only': True}
+            'images': {'write_only': True},
+            'image_urls': {'read_only': True}
         }
 
     def get_image_urls(self, obj):

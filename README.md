@@ -12,6 +12,7 @@ pip install PyJWT
 pip install redis
 pip install django-redis
 pip install pillow
+pip install drf-yasg
 ```
 
 Mysql:

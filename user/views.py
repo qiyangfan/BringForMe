@@ -18,8 +18,15 @@ class RegisterModelSerializer(serializers.ModelSerializer):
         fields = ['username', 'password', 'confirm_password', 'first_name', 'last_name',
                   'nickname', 'country_code', 'phone', 'email']
         extra_kwargs = {
+            'username': {'write_only': True},
             'password': {'write_only': True},
             'confirm_password': {'write_only': True},
+            'first_name': {'write_only': True},
+            'last_name': {'write_only': True},
+            'nickname': {'write_only': True},
+            'country_code': {'write_only': True},
+            'phone': {'write_only': True},
+            'email': {'write_only': True},
         }
 
     def validate_confirm_password(self, value):
@@ -94,6 +101,7 @@ class ChangePasswordView(GenericAPIView):
 
 class AddressModelSerializer(serializers.ModelSerializer):
     class Meta:
+        ref_name = 'UserAddressModelSerializer'
         model = Address
         fields = ['id', 'tag', 'country', 'province', 'city',
                   'address', 'remark', 'postcode', 'contact_person', 'country_code',

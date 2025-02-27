@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework_simplejwt',
+    'drf_yasg',
     'user',
     'order',
     'message',
@@ -148,7 +149,7 @@ REST_FRAMEWORK = {
     'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.URLPathVersioning',
     'DEFAULT_VERSION': 'v1',
     'ALLOWED_VERSIONS': ['v1'],
-    'DEFAULT_PARSER_CLASSES': ['rest_framework.parsers.JSONParser']
+    'DEFAULT_PARSER_CLASSES': ['rest_framework.parsers.JSONParser'],
 }
 
 CACHES = {
