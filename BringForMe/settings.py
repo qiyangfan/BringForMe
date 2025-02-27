@@ -123,8 +123,8 @@ USE_TZ = True
 STATIC_URL = 'static/'
 
 # Media files (Images, Videos)
-MEDIA_URL = '/media/'  # 设置媒体文件的相对路径
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')  # 设置媒体文件的绝对路径
+MEDIA_URL = '/media/'  # Set the relative path for media files.
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')  # Set the absolute path for media files.
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
@@ -136,8 +136,10 @@ AUTH_USER_MODEL = 'user.User'
 REST_FRAMEWORK = {
     'UNAUTHENTICATED_USER': None,
     "DEFAULT_AUTHENTICATION_CLASSES": ['rest_framework_simplejwt.authentication.JWTAuthentication',
+                                       'rest_framework.authentication.SessionAuthentication',
+                                       'rest_framework.authentication.BasicAuthentication',
                                        'extensions.authentications.FailedAuthentication'],
-    # DRF自带限流类
+    # built-in throttle classes
     'DEFAULT_THROTTLE_CLASSES': [
         'rest_framework.throttling.AnonRateThrottle',
         'rest_framework.throttling.UserRateThrottle',
