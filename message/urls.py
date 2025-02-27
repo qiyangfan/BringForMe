@@ -1,6 +1,6 @@
 from django.urls import path
 
-from message.views import MessageReceiverView,MessageView
+from message.views import MessageReceiverView, MessageView
 
 urlpatterns = [
     path('receiver/', MessageReceiverView.as_view()),
