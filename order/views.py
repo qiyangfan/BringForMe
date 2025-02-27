@@ -2,7 +2,6 @@ from rest_framework import serializers
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
-from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from media_manager.models import Image
 from user.models import Address
@@ -49,7 +48,6 @@ class OrderModelSerializer(serializers.ModelSerializer):
 
 # Create your views here.
 class OrderCreateReadView(GenericAPIView):
-    authentication_classes = [JWTAuthentication]
     serializer_class = OrderModelSerializer
 
     def get(self, request, *args, **kwargs):
