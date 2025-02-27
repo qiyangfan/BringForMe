@@ -19,3 +19,4 @@ class Order(models.Model):
         (3, 'Cancelled')
     ), default=0)
     acceptor = models.ForeignKey(User, on_delete=models.CASCADE, related_name='acceptor', null=True, blank=True)
+    images = models.JSONField(null=True, blank=True)

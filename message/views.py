@@ -1,6 +1,7 @@
 from django.db.models import Q
 from rest_framework import serializers
 from rest_framework.generics import GenericAPIView
+from rest_framework.parsers import JSONParser, MultiPartParser
 from rest_framework.response import Response
 
 from user.models import User
@@ -32,15 +33,21 @@ class MessageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Message
-        fields = ['id', 'sender', 'receiver', 'content', 'created_at']
+        fields = ['id', 'sender', 'receiver', 'content', 'created_at', 'image']
         extra_kwargs = {
             'id': {'read_only': True},
             'created_at': {'read_only': True},
         }
 
+    def validate(self, attrs):
+        if 'content' not in attrs and 'image' not in attrs:
+            raise serializers.ValidationError('Content or image is required.')
+        return attrs
+
 
 class MessageView(GenericAPIView):
     serializer_class = MessageSerializer
+    parser_classes = [JSONParser, MultiPartParser]
 
     def get(self, request, *args, **kwargs):
         sender_id = request.user.id
@@ -53,9 +60,28 @@ class MessageView(GenericAPIView):
 
     def post(self, request, *args, **kwargs):
         receiver_id = kwargs.get('receiver_id')
-        serializer = self.get_serializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save(sender_id=request.user.id, receiver_id=receiver_id)
-        else:
-            return Response({'message': serializer.errors}, status=422)
-        return Response({'status': 'ok'})
+        data_list = []
+        error_list = []
+
+        content = request.data.get('content')
+        if content:
+            serializer = self.get_serializer(data={'content': content})
+            if serializer.is_valid():
+                serializer.save(sender_id=request.user.id, receiver_id=receiver_id)
+                data_list.append(serializer.data)
+            else:
+                error_list.append(serializer.errors)
+
+        images = request.FILES.getlist('images')
+        if images:
+            for image in images:
+                serializer = self.get_serializer(data={'image': image})
+                if serializer.is_valid():
+                    serializer.save(sender_id=request.user.id, receiver_id=receiver_id)
+                    data_list.append(serializer.data)
+                else:
+                    error_list.append(serializer.errors)
+
+        if error_list:
+            return Response({'status': 'error', 'message': error_list}, status=422)
+        return Response({'status': 'ok', 'data': data_list})

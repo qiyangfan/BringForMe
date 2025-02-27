@@ -2,7 +2,6 @@ import mimetypes
 import os
 
 from rest_framework import serializers
-from rest_framework.fields import ImageField
 from rest_framework.generics import GenericAPIView
 from rest_framework.parsers import MultiPartParser
 from rest_framework.response import Response
@@ -12,8 +11,6 @@ from media_manager.models import Image, Video
 
 # Create your views here.
 class ImageModelSerializer(serializers.ModelSerializer):
-    a = ImageField
-
     class Meta:
         model = Image
         fields = ['id', 'image']
@@ -25,16 +22,18 @@ class ImageView(GenericAPIView):
 
     def post(self, request, *args, **kwargs):
         images = request.FILES.getlist('images')
+        data_list = []
         error_list = []
         for image in images:
             serializer = self.get_serializer(data={'image': image})
             if serializer.is_valid():
                 serializer.save()
+                data_list.append(serializer.data)
             else:
                 error_list.append(serializer.errors)
         if error_list:
             return Response({'status': 'error', 'message': error_list}, status=422)
-        return Response({'status': 'ok'})
+        return Response({'status': 'ok', 'data': data_list})
 
 
 ALLOWED_VIDEO_EXTENSIONS = {".mp4", ".avi", ".mov", ".mkv"}
@@ -65,13 +64,15 @@ class VideoView(GenericAPIView):
 
     def post(self, request, *args, **kwargs):
         videos = request.FILES.getlist('videos')
+        data_list = []
         error_list = []
         for video in videos:
             serializer = self.get_serializer(data={'video': video})
             if serializer.is_valid():
                 serializer.save()
+                data_list.append(serializer.data)
             else:
                 error_list.append(serializer.errors)
         if error_list:
             return Response({'status': 'error', 'message': error_list}, status=422)
-        return Response({'status': 'ok'})
+        return Response({'status': 'ok', 'data': data_list})

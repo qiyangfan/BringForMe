@@ -1,6 +1,7 @@
 from django.core.exceptions import ValidationError
 from rest_framework import serializers
 from rest_framework.generics import GenericAPIView
+from rest_framework.parsers import MultiPartParser, JSONParser
 from rest_framework.response import Response
 
 from extensions.permissions import OwnerPermission
@@ -149,7 +150,7 @@ class ProfileModelSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'username', 'first_name', 'last_name', 'nickname',
-                  'country_code', 'phone', 'email', ]
+                  'country_code', 'phone', 'email', 'avatar']
         extra_kwargs = {
             'id': {'read_only': True},
             'username': {'read_only': True},
@@ -159,6 +160,7 @@ class ProfileModelSerializer(serializers.ModelSerializer):
 class ProfileView(GenericAPIView):
     permission_classes = [OwnerPermission]
     serializer_class = ProfileModelSerializer
+    parser_classes = [JSONParser, MultiPartParser]
 
     def get(self, request, *args, **kwargs):
         user_id = kwargs.get('user_id')
@@ -170,6 +172,7 @@ class ProfileView(GenericAPIView):
         instance = User.objects.get(id=user_id)
         serializer = self.get_serializer(instance=instance, data=request.data, partial=True)
         if serializer.is_valid():
+            print(serializer.validated_data)
             serializer.save()
         else:
             return Response({'status': 'error', 'message': serializer.errors}, status=422)

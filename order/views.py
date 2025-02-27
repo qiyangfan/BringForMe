@@ -4,6 +4,7 @@ from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
+from media_manager.models import Image
 from user.models import Address
 from .models import Order
 
@@ -17,18 +18,31 @@ class AddressModelSerializer(serializers.ModelSerializer):
 
 class OrderModelSerializer(serializers.ModelSerializer):
     destination = AddressModelSerializer()
+    image_urls = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Order
         fields = ['id', 'user_id', 'created_at', 'updated_at', 'destination',
-                  'description', 'commission', 'status', 'acceptor']
-        kwargs = {
+                  'description', 'commission', 'status', 'acceptor', 'images',
+                  'image_urls']
+        extra_kwargs = {
             'id': {'read_only': True},
             'user_id': {'read_only': True},
             'created_at': {'read_only': True},
             'updated_at': {'read_only': True},
             'status': {'source': 'get_status_display'},
+            'images': {'write_only': True}
         }
+
+    def get_image_urls(self, obj):
+        image_ids = obj.images
+        image_urls = []
+        if not image_ids:
+            return image_urls
+        for image_id in image_ids:
+            image = Image.objects.get(id=image_id)
+            image_urls.append(image.image.url)
+        return image_urls
 
 
 # Create your views here.
@@ -52,7 +66,7 @@ class OrderCreateReadView(GenericAPIView):
         return Response({'status': 'ok'})
 
 
-class OrderUpdateView(GenericAPIView):
+class OrderUpdateDeleteView(GenericAPIView):
     serializer_class = OrderModelSerializer
 
     def patch(self, request, *args, **kwargs):

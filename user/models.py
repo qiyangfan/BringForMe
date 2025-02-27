@@ -9,6 +9,7 @@ class User(AbstractUser):
     phone = models.CharField(max_length=12)
     password = models.CharField(max_length=255)
     nickname = models.CharField(max_length=20)
+    avatar = models.ImageField(null=True, blank=True)
 
 
 class Address(models.Model):

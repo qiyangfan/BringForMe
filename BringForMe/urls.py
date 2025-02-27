@@ -23,5 +23,5 @@ urlpatterns = [
     path('api/<str:version>/user/', include('user.urls')),
     path('api/<str:version>/order/', include('order.urls')),
     path('api/<str:version>/message/', include('message.urls')),
-    path('api/<str:version>/media_manager/', include('media_manager.urls')),
+    path('api/<str:version>/media-manager/', include('media_manager.urls')),
 ]
