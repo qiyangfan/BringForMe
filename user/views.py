@@ -3,7 +3,7 @@ from rest_framework import serializers
 from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
 
-from extensions.permission import OwnerPermission
+from extensions.permissions import OwnerPermission
 from .models import User, Address
 from .validators import PasswordValidator
 
@@ -14,7 +14,8 @@ class RegisterModelSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['username', 'password', 'confirm_password', 'first_name', 'last_name', 'nickname', 'phone', 'email']
+        fields = ['username', 'password', 'confirm_password', 'first_name', 'last_name',
+                  'nickname', 'country_code', 'phone', 'email']
         extra_kwargs = {
             'password': {'write_only': True},
             'confirm_password': {'write_only': True},
@@ -93,7 +94,8 @@ class ChangePasswordView(GenericAPIView):
 class AddressModelSerializer(serializers.ModelSerializer):
     class Meta:
         model = Address
-        fields = ['id', 'tag', 'country', 'province', 'city', 'address', 'remark', 'postcode', 'contact_person',
+        fields = ['id', 'tag', 'country', 'province', 'city',
+                  'address', 'remark', 'postcode', 'contact_person', 'country_code',
                   'phone', 'is_default']
         extra_kwargs = {
             'id': {'read_only': True},
@@ -111,7 +113,7 @@ class AddressCreateReadView(GenericAPIView):
         user_addresses = serializer.data
         return Response({'status': 'ok', 'data': user_addresses})
 
-    def patch(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         user_id = request.user.id
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
@@ -125,11 +127,11 @@ class AddressUpdateDeleteView(GenericAPIView):
     permission_classes = [OwnerPermission]
     serializer_class = AddressModelSerializer
 
-    def put(self, request, *args, **kwargs):
+    def patch(self, request, *args, **kwargs):
         user_id = request.user.id
         address_id = kwargs.get('address_id')
         instance = Address.objects.get(id=address_id, user_id=user_id)
-        serializer = self.get_serializer(instance=instance, data=request.data)
+        serializer = self.get_serializer(instance=instance, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
         else:
@@ -146,11 +148,11 @@ class AddressUpdateDeleteView(GenericAPIView):
 class ProfileModelSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'username', 'first_name', 'last_name', 'nickname', 'phone', 'email', 'balance']
+        fields = ['id', 'username', 'first_name', 'last_name', 'nickname',
+                  'country_code', 'phone', 'email', ]
         extra_kwargs = {
             'id': {'read_only': True},
             'username': {'read_only': True},
-            'balance': {'read_only': True},
         }
 
 
@@ -163,10 +165,10 @@ class ProfileView(GenericAPIView):
         serializer = self.get_serializer(User.objects.get(id=user_id))
         return Response({'status': 'ok', 'data': serializer.data})
 
-    def put(self, request, *args, **kwargs):
+    def patch(self, request, *args, **kwargs):
         user_id = kwargs.get('user_id')
         instance = User.objects.get(id=user_id)
-        serializer = self.get_serializer(instance=instance, data=request.data)
+        serializer = self.get_serializer(instance=instance, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
         else:

@@ -22,4 +22,5 @@ urlpatterns = [
     path('<int:user_id>/profile/', ProfileView.as_view()),
     path('<int:user_id>/address/', AddressCreateReadView.as_view()),
     path('<int:user_id>/address/<int:address_id>/', AddressUpdateDeleteView.as_view()),
+    path('<int:user_id>/address/<int:address_id>/', AddressUpdateDeleteView.as_view()),
 ]

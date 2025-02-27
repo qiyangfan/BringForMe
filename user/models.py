@@ -5,11 +5,10 @@ from django.db import models
 # Create your models here.
 class User(AbstractUser):
     id = models.AutoField(primary_key=True)
-    country_code = models.CharField(max_length=3, null=True, blank=True)
-    phone = models.CharField(max_length=12, null=True, blank=True)
+    country_code = models.CharField(max_length=3)
+    phone = models.CharField(max_length=12)
     password = models.CharField(max_length=255)
     nickname = models.CharField(max_length=20)
-    balance = models.FloatField(default=0, blank=True)
 
 
 class Address(models.Model):
@@ -23,6 +22,6 @@ class Address(models.Model):
     remark = models.CharField(max_length=255, null=True, blank=True)
     postcode = models.CharField(max_length=10)
     contact_person = models.CharField(max_length=255)
-    country_code = models.CharField(max_length=3, null=True, blank=True)
-    phone = models.CharField(max_length=12, null=True, blank=True)
+    country_code = models.CharField(max_length=3)
+    phone = models.CharField(max_length=12)
     is_default = models.BooleanField(default=False)
