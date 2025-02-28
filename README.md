@@ -35,6 +35,7 @@ python manage.py runserver
 settings.py:
 
 change the database settings to your own settings.
+
 ```python
 DATABASES = {
     'default': {
@@ -47,7 +48,9 @@ DATABASES = {
     }
 }
 ```
+
 example:
+
 ```python
 DATABASES = {
     'default': {
@@ -63,6 +66,7 @@ DATABASES = {
 
 Redis:
 change the redis settings to your own settings.
+
 ```python
 CACHES = {
     "default": {
@@ -75,7 +79,9 @@ CACHES = {
     }
 }
 ```
+
 example:
+
 ```python
 CACHES = {
     "default": {

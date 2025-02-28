@@ -80,10 +80,11 @@ WSGI_APPLICATION = 'BringForMe.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'OPTIONS': {
-            'read_default_file': os.path.join(BASE_DIR, 'my.cnf'),
-        },
-
+        "NAME": "bring_for_me",
+        "USER": "root",
+        "PASSWORD": "your_password",
+        "HOST": "127.0.0.1",
+        "PORT": "3306",
     }
 }
 
@@ -159,7 +160,7 @@ CACHES = {
         "LOCATION": "redis://127.0.0.1:6379",
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
-            "password": "your_pwd"
+            "password": "your_password"
         }
     }
 }
