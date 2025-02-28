@@ -8,7 +8,6 @@ pip install mysqlclient
 pip install Django==4.2
 pip install djangorestframework
 pip install djangorestframework_simplejwt
-pip install PyJWT
 pip install redis
 pip install django-redis
 pip install pillow
