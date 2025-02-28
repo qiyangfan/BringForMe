@@ -35,6 +35,13 @@ class RegisterModelSerializer(serializers.ModelSerializer):
             raise ValidationError('The two passwords are inconsistent.')
         return value
 
+    def validate(self, attrs):
+        country_code = attrs.get('country_code')
+        phone = attrs.get('phone')
+        if (phone and not country_code) or (country_code and not phone):
+            raise ValidationError('The country code and phone number must be filled in together.')
+        return attrs
+
 
 class RegisterView(GenericAPIView):
     authentication_classes = []
