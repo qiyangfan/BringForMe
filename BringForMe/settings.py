@@ -82,7 +82,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         "NAME": "bring_for_me",
         "USER": "root",
-        "PASSWORD": "456838",
+        "PASSWORD": "",
         "HOST": "127.0.0.1",
         "PORT": "3306",
     }
@@ -160,7 +160,7 @@ CACHES = {
         "LOCATION": "redis://127.0.0.1:6379/1",
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
-            "password": "456838"
+            "password": ""
         }
     }
 }
