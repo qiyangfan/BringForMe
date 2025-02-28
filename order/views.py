@@ -51,7 +51,7 @@ class OrderCreateReadView(GenericAPIView):
     serializer_class = OrderModelSerializer
 
     def get(self, request, *args, **kwargs):
-        orders = Order.objects.all()
+        orders = Order.objects.filter(**request.query_params)
         serializer = self.get_serializer(orders, many=True)
         return Response({'status': 'ok', 'data': serializer.data})
 
