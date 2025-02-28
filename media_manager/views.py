@@ -14,6 +14,9 @@ class ImageModelSerializer(serializers.ModelSerializer):
     class Meta:
         model = Image
         fields = ['id', 'image']
+        extra_kwargs = {
+            'id': {'read_only': True}
+        }
 
 
 class ImageView(GenericAPIView):
@@ -44,6 +47,9 @@ class VideoModelSerializer(serializers.ModelSerializer):
     class Meta:
         model = Video
         fields = ['id', 'video']
+        extra_kwargs = {
+            'id': {'read_only': True}
+        }
 
     def validate_video(self, value):
         ext = os.path.splitext(value.name)[1].lower()

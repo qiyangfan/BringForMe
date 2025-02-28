@@ -12,6 +12,10 @@ class MessageReceiverSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'nickname']
+        extra_kwargs = {
+            'id': {'read_only': True},
+            'nickname': {'read_only': True},
+        }
 
 
 # Create your views here.

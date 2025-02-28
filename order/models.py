@@ -11,7 +11,7 @@ class Order(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     destination = models.JSONField()
     description = models.TextField()
-    commission = models.FloatField()
+    commission = models.FloatField(null=True, blank=True, default=0)
     status = models.SmallIntegerField(choices=(
         (0, 'Awaiting Acceptance'),
         (1, 'Order Accepted'),
