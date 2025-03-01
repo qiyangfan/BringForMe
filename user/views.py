@@ -178,12 +178,12 @@ class ProfileView(GenericAPIView):
     parser_classes = [JSONParser, MultiPartParser]
 
     def get(self, request, *args, **kwargs):
-        user_id = kwargs.get('user_id')
+        user_id = request.user.id
         serializer = self.get_serializer(User.objects.get(id=user_id))
         return Response({'status': 'ok', 'data': serializer.data})
 
     def patch(self, request, *args, **kwargs):
-        user_id = kwargs.get('user_id')
+        user_id = request.user.id
         instance = User.objects.get(id=user_id)
         serializer = self.get_serializer(instance=instance, data=request.data, partial=True)
         if serializer.is_valid():
