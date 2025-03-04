@@ -84,7 +84,7 @@ class OrderUpdateDeleteView(GenericAPIView):
         order = Order.objects.get(id=kwargs['id'])
         if order.user_id != request.user.id:
             raise AuthenticationFailed('Authentication failed.')
-        if order.status == 0:
+        if order.status == 1:
             return Response({'status': 'error', 'message': 'Order has been accepted.'}, status=403)
         order.delete()
         return Response({'status': 'ok'})
