@@ -23,10 +23,11 @@ class MessageReceiverView(GenericAPIView):
     serializer_class = MessageReceiverSerializer
 
     def get(self, request, *args, **kwargs):
-        sender_id = request.user.id
-        receiver_ids = Message.objects.filter(sender_id=sender_id).values_list('receiver_id', flat=True).distinct()
-        print(receiver_ids)
-        instance = User.objects.filter(id__in=receiver_ids)
+        my_id = request.user.id
+        receiver_ids = Message.objects.filter(sender_id=my_id).values_list('receiver_id', flat=True).distinct()
+        sender_ids = Message.objects.filter(receiver_id=my_id).values_list('sender_id', flat=True).distinct()
+        all_ids = receiver_ids.union(sender_ids)
+        instance = User.objects.filter(id__in=all_ids)
         serializer = self.get_serializer(instance, many=True)
         return Response({'status': 'ok', 'data': serializer.data})
 
