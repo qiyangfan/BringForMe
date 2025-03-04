@@ -4,7 +4,6 @@ from rest_framework.generics import GenericAPIView
 from rest_framework.parsers import MultiPartParser, JSONParser
 from rest_framework.response import Response
 
-from extensions.permissions import OwnerPermission
 from .models import User, Address
 from .validators import PasswordValidator
 
@@ -92,7 +91,6 @@ class ChangePasswordModelSerializer(serializers.ModelSerializer):
 
 
 class ChangePasswordView(GenericAPIView):
-    permission_classes = [OwnerPermission]
     serializer_class = ChangePasswordModelSerializer
 
     def patch(self, request, *args, **kwargs):
@@ -119,7 +117,6 @@ class AddressModelSerializer(serializers.ModelSerializer):
 
 
 class AddressCreateReadView(GenericAPIView):
-    permission_classes = [OwnerPermission]
     serializer_class = AddressModelSerializer
 
     def get(self, request, *args, **kwargs):
@@ -140,7 +137,6 @@ class AddressCreateReadView(GenericAPIView):
 
 
 class AddressUpdateDeleteView(GenericAPIView):
-    permission_classes = [OwnerPermission]
     serializer_class = AddressModelSerializer
 
     def patch(self, request, *args, **kwargs):
@@ -173,7 +169,6 @@ class ProfileModelSerializer(serializers.ModelSerializer):
 
 
 class ProfileView(GenericAPIView):
-    permission_classes = [OwnerPermission]
     serializer_class = ProfileModelSerializer
     parser_classes = [JSONParser, MultiPartParser]
 
