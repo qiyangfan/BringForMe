@@ -8,6 +8,8 @@ from user.models import Address
 from .models import Order
 
 
+
+
 class AddressModelSerializer(serializers.ModelSerializer):
     class Meta:
         ref_name = 'OrderAddressModelSerializer'
@@ -70,7 +72,7 @@ class OrderUpdateDeleteView(GenericAPIView):
     serializer_class = OrderModelSerializer
 
     def patch(self, request, *args, **kwargs):
-        order = Order.objects.get(id=kwargs['id'])
+        order = Order.objects.get(id=kwargs['order_id'])
         if order.user_id != request.user.id:
             raise AuthenticationFailed('Authentication failed.')
         serializer = self.get_serializer(instance=order, data=request.data, partial=True)
@@ -81,7 +83,7 @@ class OrderUpdateDeleteView(GenericAPIView):
         return Response({'status': 'ok'})
 
     def delete(self, request, *args, **kwargs):
-        order = Order.objects.get(id=kwargs['id'])
+        order = Order.objects.get(id=kwargs['order_id'])
         if order.user_id != request.user.id:
             raise AuthenticationFailed('Authentication failed.')
         if order.status == 1:
