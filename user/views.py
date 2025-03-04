@@ -142,7 +142,9 @@ class AddressUpdateDeleteView(GenericAPIView):
     def patch(self, request, *args, **kwargs):
         user_id = request.user.id
         address_id = kwargs.get('address_id')
-        instance = Address.objects.get(id=address_id, user_id=user_id)
+        instance = Address.objects.filter(id=address_id, user_id=user_id).first()
+        if not instance:
+            return Response({'status': 'error', 'message': 'Address does not exist.'}, status=404)
         serializer = self.get_serializer(instance=instance, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
@@ -187,3 +189,30 @@ class ProfileView(GenericAPIView):
         else:
             return Response({'status': 'error', 'message': serializer.errors}, status=422)
         return Response({'status': 'ok'})
+
+
+class SimpleProfileModelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'nickname', 'country_code', 'phone', 'email', 'avatar']
+        extra_kwargs = {
+            'id': {'read_only': True},
+            'nickname': {'read_only': True},
+            'country_code': {'read_only': True},
+            'phone': {'read_only': True},
+            'email': {'read_only': True},
+            'avatar': {'read_only': True},
+        }
+
+
+class OtherUserProfileView(GenericAPIView):
+    serializer_class = SimpleProfileModelSerializer
+    parser_classes = [JSONParser, MultiPartParser]
+
+    def get(self, request, *args, **kwargs):
+        user_id = kwargs.get('user_id')
+        instance = User.objects.filter(id=user_id).first()
+        if not instance:
+            return Response({'status': 'error', 'message': 'User does not exist.'}, status=404)
+        serializer = self.get_serializer(instance=instance)
+        return Response({'status': 'ok', 'data': serializer.data})

@@ -11,6 +11,7 @@ from .views import (
     AddressCreateReadView,
     AddressUpdateDeleteView,
     ChangePasswordView,
+    OtherUserProfileView
 )
 
 urlpatterns = [
@@ -20,6 +21,7 @@ urlpatterns = [
     path('register/', RegisterView.as_view()),
     path('password/', ChangePasswordView.as_view()),
     path('profile/', ProfileView.as_view()),
+    path('profile/<int:user_id>/', OtherUserProfileView.as_view()),
     path('address/', AddressCreateReadView.as_view()),
     path('address/<int:address_id>/', AddressUpdateDeleteView.as_view()),
     path('address/<int:address_id>/', AddressUpdateDeleteView.as_view()),

@@ -8,8 +8,6 @@ from user.models import Address
 from .models import Order
 
 
-
-
 class AddressModelSerializer(serializers.ModelSerializer):
     class Meta:
         ref_name = 'OrderAddressModelSerializer'
@@ -43,8 +41,9 @@ class OrderModelSerializer(serializers.ModelSerializer):
         if not image_ids:
             return image_urls
         for image_id in image_ids:
-            image = Image.objects.get(id=image_id)
-            image_urls.append(image.image.url)
+            image = Image.objects.filter(id=image_id).first()
+            if image:
+                image_urls.append(image.image.url)
         return image_urls
 
 
@@ -72,7 +71,10 @@ class OrderUpdateDeleteView(GenericAPIView):
     serializer_class = OrderModelSerializer
 
     def patch(self, request, *args, **kwargs):
-        order = Order.objects.get(id=kwargs['order_id'])
+        order_id = kwargs['order_id']
+        order = Order.objects.filter(id=order_id).first()
+        if not order:
+            return Response({'status': 'error', 'message': 'Order does not exist.'}, status=404)
         if order.user_id != request.user.id:
             raise AuthenticationFailed('Authentication failed.')
         serializer = self.get_serializer(instance=order, data=request.data, partial=True)
@@ -83,7 +85,10 @@ class OrderUpdateDeleteView(GenericAPIView):
         return Response({'status': 'ok'})
 
     def delete(self, request, *args, **kwargs):
-        order = Order.objects.get(id=kwargs['order_id'])
+        order_id = kwargs['order_id']
+        order = Order.objects.filter(id=order_id).first()
+        if not order:
+            return Response({'status': 'error', 'message': 'Order does not exist.'}, status=404)
         if order.user_id != request.user.id:
             raise AuthenticationFailed('Authentication failed.')
         if order.status == 1:
