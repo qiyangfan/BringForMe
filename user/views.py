@@ -216,3 +216,17 @@ class OtherUserProfileView(GenericAPIView):
             return Response({'status': 'error', 'message': 'User does not exist.'}, status=404)
         serializer = self.get_serializer(instance=instance)
         return Response({'status': 'ok', 'data': serializer.data})
+
+
+class BatchUserProfileView(GenericAPIView):
+    serializer_class = SimpleProfileModelSerializer
+    parser_classes = [JSONParser, MultiPartParser]
+
+    def post(self, request, *args, **kwargs):
+        user_ids = request.data.get('user_ids')
+        queryset = User.objects.filter(id__in=user_ids)
+        if not queryset:
+            return Response({'status': 'error', 'message': 'Users do not exist.'}, status=404)
+        serializer = self.get_serializer(instance=queryset, many=True)
+        user_profiles = serializer.data
+        return Response({'status': 'ok', 'data': user_profiles})
