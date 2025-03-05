@@ -75,7 +75,7 @@ class OrderUpdateDeleteView(GenericAPIView):
         order = Order.objects.filter(id=order_id).first()
         if not order:
             return Response({'status': 'error', 'message': 'Order does not exist.'}, status=404)
-        if order.user_id != request.user.id:
+        if order.acceptor_id and request.user.id not in [order.acceptor_id, order.user_id]:
             raise AuthenticationFailed('Authentication failed.')
         serializer = self.get_serializer(instance=order, data=request.data, partial=True)
         if serializer.is_valid():

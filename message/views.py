@@ -33,15 +33,14 @@ class MessageReceiverView(GenericAPIView):
 
 
 class MessageSerializer(serializers.ModelSerializer):
-    sender = serializers.CharField(source='sender.nickname', read_only=True)
-    receiver = serializers.CharField(source='receiver.nickname', read_only=True)
-
     class Meta:
         model = Message
         fields = ['id', 'sender', 'receiver', 'content', 'created_at', 'image']
         extra_kwargs = {
             'id': {'read_only': True},
             'created_at': {'read_only': True},
+            'sender': {'read_only': True},
+            'receiver': {'read_only': True},
         }
 
     def validate(self, attrs):
