@@ -26,8 +26,6 @@ class ImageView(GenericAPIView):
     def get(self, request, *args, **kwargs):
         instance = Image.objects.all()
         image_ids = request.query_params.getlist('image_ids')
-        print(image_ids)
-
         if image_ids:
             instance = instance.filter(id__in=image_ids)
         serializer = self.get_serializer(instance, many=True)
@@ -50,10 +48,14 @@ class ImageView(GenericAPIView):
 
     def delete(self, request, *args, **kwargs):
         image_ids = request.data.getlist('image_ids')
-        print(image_ids)
         if not image_ids:
             return Response({'status': 'error', 'message': 'Image IDs are required.'}, status=422)
-        Image.objects.filter(id__in=image_ids).delete()
+        images = Image.objects.filter(id__in=image_ids)
+        for image in images:
+            path = "media/" + image.image.name
+            if os.path.exists(path):
+                os.remove(path)
+        images.delete()
         return Response({'status': 'ok'})
 
 
@@ -112,6 +114,11 @@ class CreateVideoView(GenericAPIView):
     def delete(self, request, *args, **kwargs):
         video_ids = request.data.getlist('video_ids')
         if not video_ids:
-            return Response({'status': 'error', 'message': 'Image IDs are required.'}, status=422)
-        Image.objects.filter(id__in=video_ids).delete()
+            return Response({'status': 'error', 'message': 'Video IDs are required.'}, status=422)
+        videos = Video.objects.filter(id__in=video_ids)
+        for video in videos:
+            path = "media/" + video.video.name
+            if os.path.exists(path):
+                os.remove(path)
+        videos.delete()
         return Response({'status': 'ok'})

@@ -17,7 +17,7 @@ class ImageTestCase(APITestCase):
         setup_register(self)
         self.headers = setup_login(self)
 
-    def test_post_image(self):
+    def test_image(self):
         with open('test/media/image1.png', 'rb') as f:
             response = self.client.post(get_url('image/'), {'images': f}, headers=self.headers)
             self.assertEqual(response.status_code, 200)

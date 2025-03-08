@@ -158,7 +158,6 @@ class AddressUpdateDeleteView(GenericAPIView):
     def patch(self, request, *args, **kwargs):
         user_id = request.user.id
         address_id = kwargs.get('address_id')
-        print(address_id)
         instance = Address.objects.filter(id=address_id, user_id=user_id).first()
         if not instance:
             return Response({'status': 'error', 'message': 'Address does not exist.'}, status=404)
@@ -207,7 +206,6 @@ class ProfileView(GenericAPIView):
         instance = User.objects.get(id=user_id)
         serializer = self.get_serializer(instance=instance, data=request.data, partial=True)
         if serializer.is_valid():
-            print(serializer.validated_data)
             serializer.save()
         else:
             return Response({'status': 'error', 'message': serializer.errors}, status=422)
