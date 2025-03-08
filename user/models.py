@@ -5,8 +5,8 @@ from django.db import models
 # Create your models here.
 class User(AbstractUser):
     id = models.AutoField(primary_key=True)
-    country_code = models.CharField(max_length=4)
-    phone = models.CharField(max_length=15)
+    country_code = models.CharField(max_length=4, null=True, blank=True)
+    phone = models.CharField(max_length=15, null=True, blank=True)
     password = models.CharField(max_length=255)
     nickname = models.CharField(max_length=20)
     avatar = models.ImageField(null=True, blank=True)

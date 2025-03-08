@@ -8,6 +8,7 @@ from .models import User, Address
 from .validators import PasswordValidator
 
 
+# User model serializer for registration
 class RegisterModelSerializer(serializers.ModelSerializer):
     password = serializers.CharField(max_length=255, validators=[PasswordValidator()])
     confirm_password = serializers.CharField(max_length=255)
@@ -28,12 +29,14 @@ class RegisterModelSerializer(serializers.ModelSerializer):
             'email': {'write_only': True},
         }
 
+    # Check if the two passwords are inconsistent
     def validate_confirm_password(self, value):
         password = self.initial_data.get('password')
         if password != value:
             raise ValidationError('The two passwords are inconsistent.')
         return value
 
+    # Check if the country code and phone number are filled in together
     def validate(self, attrs):
         country_code = attrs.get('country_code')
         phone = attrs.get('phone')
@@ -46,9 +49,11 @@ class RegisterView(GenericAPIView):
     authentication_classes = []
     serializer_class = RegisterModelSerializer
 
+    # Register a new user
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
+            # Remove the confirm_password field
             serializer.validated_data.pop('confirm_password')
             User.objects.create_user(**serializer.validated_data)
         else:
@@ -70,12 +75,14 @@ class ChangePasswordModelSerializer(serializers.ModelSerializer):
             'confirm_new_password': {'write_only': True},
         }
 
+    # Check if the old password is correct
     def validate_old_password(self, value):
         user = self.context['request'].user
         if not user.check_password(value):
             raise ValidationError('The old password is incorrect.')
         return value
 
+    # Check if the new password is the same as the old password
     def validate_new_password(self, value):
         user = self.context['request'].user
         new_password = self.initial_data.get('new_password')
@@ -83,6 +90,7 @@ class ChangePasswordModelSerializer(serializers.ModelSerializer):
             raise ValidationError('The new password cannot be the same as the old password.')
         return value
 
+    # Check if the two new passwords are inconsistent
     def validate_confirm_new_password(self, value):
         new_password = self.initial_data.get('new_password')
         if new_password != value:
@@ -93,10 +101,12 @@ class ChangePasswordModelSerializer(serializers.ModelSerializer):
 class ChangePasswordView(GenericAPIView):
     serializer_class = ChangePasswordModelSerializer
 
+    # Change the password
     def patch(self, request, *args, **kwargs):
         user = request.user
         serializer = self.get_serializer(data=request.data, context={'request': request})
         if serializer.is_valid():
+            # Remove the confirm_new_password field
             user.set_password(serializer.validated_data.get('new_password'))
             user.save()
         else:
@@ -119,13 +129,18 @@ class AddressModelSerializer(serializers.ModelSerializer):
 class AddressCreateReadView(GenericAPIView):
     serializer_class = AddressModelSerializer
 
+    # Get the address list of the current user
     def get(self, request, *args, **kwargs):
         user_id = request.user.id
         queryset = Address.objects.filter(user_id=user_id)
+        address_id = request.query_params.get('address_id')
+        if address_id:
+            queryset = queryset.filter(id=address_id)
         serializer = self.get_serializer(instance=queryset, many=True)
         user_addresses = serializer.data
         return Response({'status': 'ok', 'data': user_addresses})
 
+    # Add a new address
     def post(self, request, *args, **kwargs):
         user_id = request.user.id
         serializer = self.get_serializer(data=request.data)
@@ -139,9 +154,11 @@ class AddressCreateReadView(GenericAPIView):
 class AddressUpdateDeleteView(GenericAPIView):
     serializer_class = AddressModelSerializer
 
+    # Update the address
     def patch(self, request, *args, **kwargs):
         user_id = request.user.id
         address_id = kwargs.get('address_id')
+        print(address_id)
         instance = Address.objects.filter(id=address_id, user_id=user_id).first()
         if not instance:
             return Response({'status': 'error', 'message': 'Address does not exist.'}, status=404)
@@ -152,10 +169,14 @@ class AddressUpdateDeleteView(GenericAPIView):
             return Response({'status': 'error', 'message': serializer.errors}, status=422)
         return Response({'status': 'ok'})
 
+    # Delete the address
     def delete(self, request, *args, **kwargs):
         user_id = request.user.id
         address_id = kwargs.get('address_id')
-        Address.objects.get(id=address_id, user_id=user_id).delete()
+        try:
+            Address.objects.filter(id=address_id, user_id=user_id).delete()
+        except Address.DoesNotExist:
+            return Response({'status': 'error', 'message': 'Address does not exist.'}, status=404)
         return Response({'status': 'ok'})
 
 
@@ -174,11 +195,13 @@ class ProfileView(GenericAPIView):
     serializer_class = ProfileModelSerializer
     parser_classes = [JSONParser, MultiPartParser]
 
+    # Get the profile of the current user
     def get(self, request, *args, **kwargs):
         user_id = request.user.id
         serializer = self.get_serializer(User.objects.get(id=user_id))
         return Response({'status': 'ok', 'data': serializer.data})
 
+    # Update the profile of the current user
     def patch(self, request, *args, **kwargs):
         user_id = request.user.id
         instance = User.objects.get(id=user_id)
@@ -209,6 +232,7 @@ class OtherUserProfileView(GenericAPIView):
     serializer_class = SimpleProfileModelSerializer
     parser_classes = [JSONParser, MultiPartParser]
 
+    # Get the simplified profile of other users
     def get(self, request, *args, **kwargs):
         user_id = kwargs.get('user_id')
         instance = User.objects.filter(id=user_id).first()
@@ -222,11 +246,14 @@ class BatchUserProfileView(GenericAPIView):
     serializer_class = SimpleProfileModelSerializer
     parser_classes = [JSONParser, MultiPartParser]
 
-    def post(self, request, *args, **kwargs):
-        user_ids = request.data.get('user_ids')
-        queryset = User.objects.filter(id__in=user_ids)
-        if not queryset:
+    # Get the simplified profile of multiple users
+    def get(self, request, *args, **kwargs):
+        user_ids = request.query_params.getlist('user_ids')
+        if not user_ids:
+            return Response({'status': 'error', 'message': 'User IDs are required.'}, status=422)
+        instance = User.objects.filter(id__in=user_ids)
+        if not instance:
             return Response({'status': 'error', 'message': 'Users do not exist.'}, status=404)
-        serializer = self.get_serializer(instance=queryset, many=True)
+        serializer = self.get_serializer(instance=instance, many=True)
         user_profiles = serializer.data
         return Response({'status': 'ok', 'data': user_profiles})

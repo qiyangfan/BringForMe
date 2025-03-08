@@ -17,6 +17,6 @@ class Order(models.Model):
         (1, 'Order Accepted'),
         (2, 'Completed'),
         (3, 'Cancelled')
-    ), default=0)
+    ), default=0, blank=True)
     acceptor = models.ForeignKey(User, on_delete=models.CASCADE, related_name='acceptor', null=True, blank=True)
     images = models.JSONField(null=True, blank=True)
