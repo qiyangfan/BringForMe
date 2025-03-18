@@ -84,7 +84,7 @@ class VideoModelSerializer(serializers.ModelSerializer):
         return value
 
 
-class CreateVideoView(GenericAPIView):
+class VideoView(GenericAPIView):
     serializer_class = VideoModelSerializer
     parser_classes = [MultiPartParser]
 
