@@ -3,7 +3,7 @@ import json
 from rest_framework.test import (APITestCase)
 
 from BringForMe import settings
-from user.tests import setup_register, setup_login,setup_register_second
+from user.tests import setup_register, setup_login, setup_register_second
 
 base_url = '/api/{version}/'.format(version=settings.REST_FRAMEWORK['DEFAULT_VERSION'])
 app_base_url = 'order/'

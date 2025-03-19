@@ -1,6 +1,7 @@
 import json
 
-from rest_framework.test import ( APITestCase)
+from rest_framework.test import (APITestCase)
+
 from BringForMe import settings
 from .models import User
 
@@ -273,6 +274,7 @@ class OtherUserProfileTestCase(APITestCase):
     def test_get_other_user_profile(self):
         response = self.client.get(get_url("profile/{user_id}/".format(user_id=2)),
                                    headers=self.headers)
+        print(response.data)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data['data']['nickname'], 'zhangruixiang')
 
@@ -289,4 +291,5 @@ class BatchUserProfileTestCase(APITestCase):
         }
         response = self.client.post(get_url("batch-profile/"), json.dumps(request_data),
                                     content_type='application/json', headers=self.headers)
+        print(response.data)
         self.assertEqual(response.status_code, 200)

@@ -46,6 +46,7 @@ class MessageSerializer(serializers.ModelSerializer):
             'sender': {'read_only': True},
             'receiver': {'read_only': True},
         }
+
     def validate(self, attrs):
         if 'content' not in attrs and 'image' not in attrs:
             raise serializers.ValidationError('Content or image is required.')
